@@ -13,6 +13,6 @@
 
 @interface LoginViewController : UIViewController <GPPSignInDelegate>
 
-@property (retain, nonatomic) IBOutlet GPPSignInButton *signInButton;
+- (IBAction)unwindToLogin:(UIStoryboardSegue *)segue;
 
 @end

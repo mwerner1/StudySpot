@@ -7,7 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <WindowsAzureMobileServices/WindowsAzureMobileServices.h>
 
 @interface ProfileViewController : UIViewController
+
+@property (weak, nonatomic) IBOutlet UILabel *firstNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *lastNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *emailLabel;
+@property (weak, nonatomic) IBOutlet UILabel *schoolLabel;
+@property (nonatomic, strong) NSString *email;
+- (IBAction)editCourses:(id)sender;
 
 @end
