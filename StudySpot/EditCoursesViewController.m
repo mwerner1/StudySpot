@@ -15,6 +15,7 @@
 @property (nonatomic, strong) NSArray *deptAbbrevs;
 @property (nonatomic, strong) NSArray *courseNums;
 @property (nonatomic, strong) NSMutableArray *enrolledCourses;
+@property (nonatomic, strong) NSNumber *userID;
 
 @end
 
@@ -33,6 +34,8 @@
 {
     self.deptAbbrevs = abbrevs;
     [self.dept reloadAllComponents];
+    
+    [self loadCourseNums:[self.deptAbbrevs[0] objectForKey:@"crsabbrev"]];
 }
 
 - (void)crsNumsLoadComplete:(NSArray *)crsNums
@@ -74,6 +77,78 @@
     }];
 }
 
+- (void)loadEnrolledCourses
+{
+    MSTable *userTable = [self.client tableWithName:@"users"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"email == %@", self.email];
+    
+    // Query users table for logged in user
+    [userTable readWithPredicate:predicate completion:^(NSArray *items, NSInteger totalCount, NSError *error)
+     {
+         if (error)
+         {
+             NSLog(@"ERROR %@", error);
+         }
+         else if (totalCount == 0)
+         {
+             NSLog(@"No results matching e-mail: %@", self.email);
+         }
+         else
+         {
+             // There should only be 1 row returned with an email matching the current user's email
+             for (NSDictionary *item in items)
+             {
+                 self.userID = [NSNumber numberWithInt:[[item objectForKey:@"id"] intValue]];
+             }
+             
+             MSTable *userCourseTable = [self.client tableWithName:@"user_course"];
+             NSPredicate *predicate = [NSPredicate predicateWithFormat:@"uc_userid == %@", self.userID];
+             
+             [userCourseTable readWithPredicate:predicate completion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+                 if (error)
+                 {
+                     NSLog(@"ERROR %@", error);
+                 }
+                 else
+                 {
+                     NSMutableString *predicateString = [[NSMutableString alloc] init];
+                     
+                     for (int i=0; i<items.count; i++)
+                     {
+                         if (i < items.count - 1)
+                         {
+                             [predicateString appendString: [NSString stringWithFormat:@"id == %@ OR ", [items[i] objectForKey:@"uc_courseid"]]];
+                         }
+                         else
+                         {
+                             [predicateString appendString:[NSString stringWithFormat:@"id == %@", [items[i] objectForKey:@"uc_courseid"]]];
+                         }
+                     }
+                     
+                     MSTable *courseTable = [self.client tableWithName:@"courses"];
+                     NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
+                     
+                     [courseTable readWithPredicate:predicate completion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+                         if (error)
+                         {
+                             NSLog(@"ERROR %@", error);
+                         }
+                         else
+                         {
+                             for (NSDictionary *item in items)
+                             {
+                                 [self.enrolledCourses addObject:item];
+                             }
+                             
+                             [self.coursesTable reloadData];
+                         }
+                     }];
+                 }
+             }];
+         }
+     }];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -86,7 +161,41 @@
     self.enrolledCourses = [[NSMutableArray alloc] init];
     
     [self loadDepartments];
-    
+    [self loadEnrolledCourses];
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete)
+    {
+        MSTable *userCourseTable = [self.client tableWithName:@"user_course"];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"uc_userid == %@ AND uc_courseid == %@", self.userID, [[self.enrolledCourses objectAtIndex:indexPath.row] objectForKey:@"id"]];
+        
+        [userCourseTable readWithPredicate:predicate completion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+            if (error)
+            {
+                NSLog(@"ERROR %@", error);
+            }
+            else
+            {
+                for (NSDictionary *item in items)
+                {
+                    [userCourseTable delete:item completion:^(id itemId, NSError *error) {
+                        if (error)
+                        {
+                            NSLog(@"ERROR %@", error);
+                        }
+                        else
+                        {
+                            // Successful Delete
+                            [self.enrolledCourses removeObjectAtIndex:indexPath.row];
+                            [self.coursesTable reloadData];
+                        }
+                    }];
+                }
+            }
+        }];
+    }
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -94,6 +203,7 @@
     return 1;
 }
 
+/* Determines number of rows in table view */
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return [self.enrolledCourses count];
@@ -104,6 +214,7 @@
     return 1;
 }
 
+/* Populates table view cells with course info */
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *cellIdentifier = @"Cell";
@@ -114,9 +225,13 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
     }
     
-    cell.textLabel.text =
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.textLabel.text = [[self.enrolledCourses objectAtIndex:indexPath.row] objectForKey:@"course"];
+    
+    return cell;
 }
 
+/* Determines number of rows in department and course num picker views */
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
     if (pickerView == self.dept)
@@ -129,6 +244,7 @@
     }
 }
 
+/* Populates rows of department and course num picker views with appropriate values */
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
     if (pickerView == self.dept)
@@ -158,11 +274,8 @@
 - (void)addCourseToDB
 {
     NSInteger row = [self.courseNum selectedRowInComponent:0];
-    NSNumber *courseID = [NSNumber numberWithInt:[[[self.courseNums objectAtIndex:row] objectForKey:@"id"] integerValue]];
     
-    NSLog(@"FOO BAR: %@", [self.courseNums objectAtIndex:row]);
-    
-    if ([self.enrolledCourses containsObject:courseID])
+    if ([self.enrolledCourses containsObject:[self.courseNums objectAtIndex:row]])
     {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Oops!"
                                                         message: @"You are already enrolled in that course."
@@ -173,7 +286,7 @@
     }
     else
     {
-        [self.enrolledCourses addObject:courseID];
+        [self.enrolledCourses addObject:[self.courseNums objectAtIndex:row]];
     
         MSTable *userTable = [self.client tableWithName:@"users"];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"email == %@", self.email];
@@ -192,6 +305,7 @@
              else
              {
                  NSString *userID;
+                 NSNumber *courseID = [NSNumber numberWithInt:[[[self.courseNums objectAtIndex:row] objectForKey:@"id"] integerValue]];
                  MSTable *userCourseTable = [self.client tableWithName:@"user_course"];
                  
                  // There should only be 1 row returned with an email matching the current user's email
@@ -210,6 +324,10 @@
                       if (error)
                       {
                           NSLog(@"ERROR %@", error);
+                      }
+                      else
+                      {
+                          [self.coursesTable reloadData];
                       }
                   }];
              }

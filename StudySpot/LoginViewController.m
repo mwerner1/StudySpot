@@ -68,6 +68,13 @@
     self.client = [MSClient clientWithApplicationURLString:@"https://studyspot.azure-mobile.net/"
                                             applicationKey:@"UeeXTmfsscRIhhVuCyRqDRwfThBDPa90"];
     
+    UIActivityIndicatorView *av = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    
+    av.frame = CGRectMake(145, 160, 2, 25);
+    av.tag = 1;
+    [self.view addSubview:av];
+    [av startAnimating];
+    
 }
 
 /* Adds first time logged in user to Azure DB */
@@ -96,6 +103,8 @@
             // Insert new user item into Azure DB
             [userTable insert:newItem completion:^(NSDictionary *item, NSError *error)
             {
+                UIActivityIndicatorView *tmpimg = (UIActivityIndicatorView *)[self.view viewWithTag:1];
+                [tmpimg removeFromSuperview];
                 [self.navigationController pushViewController:vc animated:YES];
             }];
         }
@@ -125,6 +134,8 @@
         // User already in users table.  Segue without adding user to users table.
         else
         {
+            UIActivityIndicatorView *tmpimg = (UIActivityIndicatorView *)[self.view viewWithTag:1];
+            [tmpimg removeFromSuperview];
             [self.navigationController pushViewController:vc animated:YES];
         }
     }];
