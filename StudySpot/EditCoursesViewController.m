@@ -47,15 +47,23 @@
 - (void)loadDepartments
 {
     MSTable *coursesView = [self.client tableWithName:@"vw_distinct_courseabbrev"];
+    //MSTable *courses = [self.client tableWithName:@"courses"];
     
-    [coursesView readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+    MSQuery *query = [coursesView query];
+    query.includeTotalCount = YES;
+    query.fetchLimit = 0;
+    
+    [query readWithCompletion:^(NSArray *items, NSInteger totalCount, NSError *error) {
         if(error)
         {
             NSLog(@"ERROR %@", error);
         }
         else
         {
-            [self crsLoadComplete:items];
+            NSLog(@"%ld", (unsigned long)totalCount);
+            NSSortDescriptor *descriptor = [[NSSortDescriptor alloc] initWithKey:@"crsabbrev" ascending:YES];
+            NSArray *sortedArr = [items sortedArrayUsingDescriptors:[NSArray arrayWithObjects:descriptor, nil]];
+            [self crsLoadComplete:sortedArr];
         }
     }];
 }
@@ -125,24 +133,27 @@
                          }
                      }
                      
-                     MSTable *courseTable = [self.client tableWithName:@"courses"];
-                     NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
-                     
-                     [courseTable readWithPredicate:predicate completion:^(NSArray *items, NSInteger totalCount, NSError *error) {
-                         if (error)
-                         {
-                             NSLog(@"ERROR %@", error);
-                         }
-                         else
-                         {
-                             for (NSDictionary *item in items)
+                     if ([predicateString length] != 0)
+                     {
+                         MSTable *courseTable = [self.client tableWithName:@"courses"];
+                         NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
+                         
+                         [courseTable readWithPredicate:predicate completion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+                             if (error)
                              {
-                                 [self.enrolledCourses addObject:item];
+                                 NSLog(@"ERROR %@", error);
                              }
-                             
-                             [self.coursesTable reloadData];
-                         }
-                     }];
+                             else
+                             {
+                                 for (NSDictionary *item in items)
+                                 {
+                                     [self.enrolledCourses addObject:item];
+                                 }
+                                 
+                                 [self.coursesTable reloadData];
+                             }
+                         }];
+                     }
                  }
              }];
          }

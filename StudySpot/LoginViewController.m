@@ -17,6 +17,7 @@
 @property (nonatomic, strong) NSString *kClientId;
 @property (nonatomic, strong) GPPSignIn *signIn;
 @property (nonatomic, strong) MSClient *client;
+@property (nonatomic, strong) UIActivityIndicatorView *av;
 
 @end
 
@@ -67,13 +68,6 @@
     // Initialize Azure Mobile Service Client
     self.client = [MSClient clientWithApplicationURLString:@"https://studyspot.azure-mobile.net/"
                                             applicationKey:@"UeeXTmfsscRIhhVuCyRqDRwfThBDPa90"];
-    
-    UIActivityIndicatorView *av = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    
-    av.frame = CGRectMake(145, 160, 2, 25);
-    av.tag = 1;
-    [self.view addSubview:av];
-    [av startAnimating];
     
 }
 
@@ -145,6 +139,13 @@
    Adds user to Azure DB if it's the user's first login. */
 - (void)segueBasedOnSignIn
 {
+    _av = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    
+    _av.frame = CGRectMake(160, 350, 2, 25);
+    _av.tag = 1;
+    [self.view addSubview:_av];
+    [_av startAnimating];
+    
     // User log in successful
     if ([[GPPSignIn sharedInstance] authentication])
     {

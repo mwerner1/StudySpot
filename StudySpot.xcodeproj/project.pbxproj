@@ -25,6 +25,7 @@
 		CA2416D018A8AC3F00F995CB /* ProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA2416CF18A8AC3F00F995CB /* ProfileViewController.m */; };
 		CA2416D318A8C24E00F995CB /* futuraCondensed.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CA2416D118A8B79B00F995CB /* futuraCondensed.ttf */; };
 		CA2A16F218C46F0800DD81D4 /* StudySpotsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA2A16F118C46F0800DD81D4 /* StudySpotsViewController.m */; };
+		CA7109A318F0E9050037E806 /* CreateSSViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA7109A218F0E9050037E806 /* CreateSSViewController.m */; };
 		CA77E5D8189EEA860058C9EB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CA77E5D7189EEA860058C9EB /* Main.storyboard */; };
 		CA77E61A189F5CEE0058C9EB /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = CA77E619189F5CEE0058C9EB /* background.png */; };
 		CA77E61C189F67EE0058C9EB /* GooglePlus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA77E61B189F67EE0058C9EB /* GooglePlus.framework */; };
@@ -83,6 +84,8 @@
 		CA2416D118A8B79B00F995CB /* futuraCondensed.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = futuraCondensed.ttf; sourceTree = "<group>"; };
 		CA2A16F018C46F0800DD81D4 /* StudySpotsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StudySpotsViewController.h; sourceTree = "<group>"; };
 		CA2A16F118C46F0800DD81D4 /* StudySpotsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StudySpotsViewController.m; sourceTree = "<group>"; };
+		CA7109A118F0E9050037E806 /* CreateSSViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CreateSSViewController.h; path = ../CreateSSViewController.h; sourceTree = "<group>"; };
+		CA7109A218F0E9050037E806 /* CreateSSViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CreateSSViewController.m; path = ../CreateSSViewController.m; sourceTree = "<group>"; };
 		CA77E5D7189EEA860058C9EB /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		CA77E619189F5CEE0058C9EB /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = background.png; path = ../../Documents/iOSimages/background.png; sourceTree = "<group>"; };
 		CA77E61B189F67EE0058C9EB /* GooglePlus.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GooglePlus.framework; path = "../../Downloads/google-plus-ios-sdk-1.5.0/GooglePlus.framework"; sourceTree = "<group>"; };
@@ -200,6 +203,8 @@
 				CA1EA0D418BA9F890045E194 /* EditCoursesViewController.m */,
 				CA2A16F018C46F0800DD81D4 /* StudySpotsViewController.h */,
 				CA2A16F118C46F0800DD81D4 /* StudySpotsViewController.m */,
+				CA7109A118F0E9050037E806 /* CreateSSViewController.h */,
+				CA7109A218F0E9050037E806 /* CreateSSViewController.m */,
 			);
 			path = StudySpot;
 			sourceTree = "<group>";
@@ -372,6 +377,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA7109A318F0E9050037E806 /* CreateSSViewController.m in Sources */,
 				CA2A16F218C46F0800DD81D4 /* StudySpotsViewController.m in Sources */,
 				CA1EA0D518BA9F8B0045E194 /* EditCoursesViewController.m in Sources */,
 				CA14ACA7189EE0100078A86C /* AppDelegate.m in Sources */,

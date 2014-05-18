@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@interface StudySpotsViewController : UIViewController
-<UITableViewDataSource, UITableViewDelegate>
+@interface StudySpotsViewController : UIViewController <UIPickerViewDataSource, UIPickerViewDelegate, UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *studySpotTable;
+@property (nonatomic, strong) NSString *email;
 
+- (IBAction)createStudySpots:(id)sender;
+- (IBAction)unwindToStudySpots:(UIStoryboardSegue *)segue;
+- (IBAction)filterStudySpots:(id)sender;
 
 @end

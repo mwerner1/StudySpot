@@ -118,27 +118,30 @@
         }
     }
     
-    /* Create object to access the course table */
-    MSTable *courseTable = [self.client tableWithName:@"courses"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
-    
-    [courseTable readWithPredicate:predicate completion:^(NSArray *items, NSInteger totalCount, NSError *error) {
-        if (error)
-        {
-            NSLog(@"ERROR %@", error);
-        }
-        else
-        {
-            /* Add user enrolled courses to a mutable array */
-            for (NSDictionary *item in items)
+    if ([predicateString length] != 0)
+    {
+        /* Create object to access the course table */
+        MSTable *courseTable = [self.client tableWithName:@"courses"];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
+
+        [courseTable readWithPredicate:predicate completion:^(NSArray *items, NSInteger totalCount, NSError *error) {
+            if (error)
             {
-                [self.enrolledCourses addObject:item];
+                NSLog(@"ERROR %@", error);
             }
-            
-            /* Update table view to accurately reflect */
-            [self.enrolledTable reloadData];
-        }
-    }];
+            else
+            {
+                /* Add user enrolled courses to a mutable array */
+                for (NSDictionary *item in items)
+                {
+                    [self.enrolledCourses addObject:item];
+                }
+                
+                /* Update table view to accurately reflect */
+                [self.enrolledTable reloadData];
+            }
+        }];
+    }
 }
 
 /* This method queries the Azure DB and gets a list of the rows with the user's ID and course IDs */
@@ -166,6 +169,7 @@
 {
     /* Create object to access the user table */
     MSTable *userTable = [self.client tableWithName:@"users"];
+    
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"email == %@", self.email];
     
     // Query users table for logged in user
@@ -243,7 +247,7 @@
     
     // Pass user's e-mail to StudySpotViewController
     StudySpotsViewController *vc = [storyboard instantiateViewControllerWithIdentifier:@"StudySpotsViewController"];
-    //vc.email = self.email;
+    vc.email = self.email;
     
     [self.navigationController pushViewController:vc animated:YES];
 }
